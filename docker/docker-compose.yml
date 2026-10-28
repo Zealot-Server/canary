@@ -92,7 +92,7 @@ services:
       CANARY_STATUS_PORT: "${CANARY_STATUS_PORT:-7173}"
       CANARY_STATUS_TIMEOUT: "${CANARY_STATUS_TIMEOUT:-5000}"
       CANARY_DATA_PACK: "${CANARY_DATA_PACK:-data-otservbr-global}"
-      MYAAC_SERVER_PATH: "/canary"
+      MYAAC_SERVER_PATH: "/data/server"
       MYAAC_SITE_URL: "${MYAAC_SITE_URL:-http://localhost:8080}"
       MYAAC_ADMIN_ACCOUNT: "${MYAAC_ADMIN_ACCOUNT:-myaacadmin}"
       MYAAC_ADMIN_EMAIL: "${MYAAC_ADMIN_EMAIL:-admin@localhost.local}"
@@ -106,6 +106,7 @@ services:
     volumes:
       - '../../myaac-main:/var/www/html'
       - '../:/canary'
+      - 'server-data:/data/server:ro'
       - '../../otclient:/otclient:ro'
     networks:
       - canary-net

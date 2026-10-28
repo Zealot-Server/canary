@@ -301,10 +301,12 @@ http://localhost:8088/login
 Docker volumes used by this quickstart:
 
 - `db-volume`: MariaDB data
-- `server-data`: Canary shared runtime data and backups
+- `server-data`: dados de runtime e backups compartilhados entre Canary e MyAAC
 
 MyAAC stores its persistent state in the shared Canary database. Its generated
 `config.local.php` is recreated from `.env` whenever the container starts.
+Ele lê `config.lua` e o datapack do servidor no volume `server-data`, que o
+entrypoint do Canary preenche antes de iniciar o game server.
 
 When an existing Canary schema is detected, the server entrypoint writes a
 database backup. With the default `CANARY_DB_NAME=canary`, the backup path is:

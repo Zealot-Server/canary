@@ -75,6 +75,7 @@ $adminAccount = requiredEnv('MYAAC_ADMIN_ACCOUNT');
 $adminEmail = requiredEnv('MYAAC_ADMIN_EMAIL');
 $adminPassword = requiredEnv('MYAAC_ADMIN_PASSWORD');
 $adminPlayer = requiredEnv('MYAAC_ADMIN_PLAYER');
+$serverPath = rtrim(requiredEnv('MYAAC_SERVER_PATH'), '/') . '/';
 
 // A new Canary schema includes the insecure default god/god account at id 1.
 // Replace it only when it is still the pristine account; existing worlds are
@@ -104,7 +105,7 @@ if ($defaultAccount->fetchColumn() === 'god') {
 writeConfig([
     'installed' => true,
     'env' => 'prod',
-    'server_path' => '/canary/',
+    'server_path' => $serverPath,
     'database_host' => $host,
     'database_port' => $port,
     'database_user' => $user,
