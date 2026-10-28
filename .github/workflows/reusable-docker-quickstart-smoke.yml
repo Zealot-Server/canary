@@ -43,5 +43,5 @@ jobs:
       - name: Run Docker quickstart smoke (latest image)
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         env:
-          CANARY_IMAGE: ghcr.io/opentibiabr/canary:latest
+          CANARY_IMAGE: ghcr.io/zealot-server/canary:latest
         run: bash .github/scripts/docker-quickstart-smoke.sh
