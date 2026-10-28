@@ -27,9 +27,11 @@ Use uma tag ou digest do Canary quando houver uma release validada. A imagem
 as alterações do projeto; a imagem pública de terceiros não substitui essa
 build.
 
-Após apontar o domínio, configure um proxy HTTPS para encaminhar o site ao
-MyAAC em `127.0.0.1:8080` e o endpoint de login a `127.0.0.1:8088`. Só então
-o cliente deve usar a URL HTTPS pública do login-server.
+O override já inclui Caddy como gateway HTTPS. Antes de iniciá-lo, aponte os
+registros `A` de `@` e `api` para o VPS e o `CNAME` de `www` para `@`. O
+`Caddyfile` encaminha o site a MyAAC e `api.zealot.website` ao login-server,
+mantendo ambos fora da Internet direta. Só então o cliente deve usar
+`https://api.zealot.website/login`.
 
 Os volumes Docker preservam banco e dados de runtime no mesmo VPS, mas não são
 backup externo. Antes de abrir o servidor, automatize uma cópia externa do dump

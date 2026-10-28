@@ -1,0 +1,12 @@
+{
+	email admin@zealot.website
+}
+
+zealot.website, www.zealot.website {
+	encode zstd gzip
+	reverse_proxy myaac:80
+}
+
+api.zealot.website {
+	reverse_proxy login-server:8088
+}
