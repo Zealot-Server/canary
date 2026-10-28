@@ -93,7 +93,7 @@ function Player.addManaSpent(...)
 	return ret
 end
 
--- Functions From Numenor
+-- Functions From Zealot
 function Player.depositMoney(self, amount)
 	return Bank.deposit(self, amount)
 end

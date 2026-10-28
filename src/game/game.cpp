@@ -11085,6 +11085,12 @@ void Game::addPlayer(const std::shared_ptr<Player> &player) {
 	mappedPlayerNames[lowercase_name] = player;
 	wildcardTree->insert(lowercase_name);
 	players[player->getID()] = player;
+
+	// The website reads players_online for its live counter. Update only this
+	// player on login; the periodic full reconciliation remains a safeguard.
+	if (!g_database().executeQuery(fmt::format("INSERT IGNORE INTO `players_online` (`player_id`) VALUES ({})", player->getGUID()))) {
+		g_logger().error("[Game::addPlayer] Failed to mark player {} as online.", player->getGUID());
+	}
 }
 
 void Game::removePlayer(const std::shared_ptr<Player> &player) {
@@ -11092,6 +11098,12 @@ void Game::removePlayer(const std::shared_ptr<Player> &player) {
 	mappedPlayerNames.erase(lowercase_name);
 	wildcardTree->remove(lowercase_name);
 	players.erase(player->getID());
+
+	// See addPlayer(): remove only this player immediately, without repeatedly
+	// scanning every online player for each login/logout event.
+	if (!g_database().executeQuery(fmt::format("DELETE FROM `players_online` WHERE `player_id` = {}", player->getGUID()))) {
+		g_logger().error("[Game::removePlayer] Failed to mark player {} as offline.", player->getGUID());
+	}
 }
 
 void Game::addNpc(const std::shared_ptr<Npc> &npc) {
