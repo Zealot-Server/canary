@@ -76,7 +76,7 @@ services:
     entrypoint:
       - /bin/sh
       - -lc
-      - mkdir -p /var/www/html/system/cache /var/www/html/system/cache/twig /var/www/html/system/logs /var/www/html/system/php_sessions && chown -R www-data:www-data /var/www/html/system/cache /var/www/html/system/logs /var/www/html/system/php_sessions && apache2-foreground
+      - mkdir -p /var/www/html/system/cache /var/www/html/system/cache/twig /var/www/html/system/logs /var/www/html/system/php_sessions /var/www/html/images/items /var/www/html/images/library/market-outfits /var/www/html/images/library/daily-boost && chown -R www-data:www-data /var/www/html/system/cache /var/www/html/system/logs /var/www/html/system/php_sessions /var/www/html/images/items /var/www/html/images/library/market-outfits /var/www/html/images/library/daily-boost || exit 1; (while true; do php /var/www/html/system/bin/sync_daily_boost_sprites.php --if-missing >&2 || true; sleep 300; done) & exec apache2-foreground
     restart: unless-stopped
     environment:
       CANARY_DB_HOST: "${CANARY_DB_HOST:-db}"
@@ -100,11 +100,13 @@ services:
       MYAAC_ADMIN_PLAYER: "${MYAAC_ADMIN_PLAYER:-ADM1}"
       MYAAC_CLIENT_VERSION: "${MYAAC_CLIENT_VERSION:-1511}"
       MYAAC_TIMEZONE: "${MYAAC_TIMEZONE:-America/Fortaleza}"
+      ZEALOT_OTCLIENT_ASSETS: "/otclient/data/things/${MYAAC_CLIENT_VERSION:-1511}"
     ports:
       - '${MYAAC_HTTP_PORT:-8080}:80'
     volumes:
       - '../../myaac-main:/var/www/html'
       - '../:/canary'
+      - '../../otclient:/otclient:ro'
     networks:
       - canary-net
     depends_on:
