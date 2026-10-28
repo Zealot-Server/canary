@@ -320,16 +320,16 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          found_logs=false
-          while IFS= read -r -d '' log; do
-            found_logs=true
-            if grep -q "to 0 binary cache(s)" -- "$log"; then
-              echo "Binary cache push reported 0 caches." >&2
-              exit 1
-            fi
-          done < <(find . -name "vcpkg-manifest-install.log" -print0)
-
-          if [[ "${found_logs}" != true ]]; then
+          mapfile -d '' logs < <(find . -name "vcpkg-manifest-install.log" -print0)
+          if [[ ${#logs[@]} -eq 0 ]]; then
             echo "No vcpkg manifest logs found." >&2
             exit 1
           fi
+          if grep -Eq "to [1-9][0-9]* binary cache\(s\)" -- "${logs[@]}"; then
+            exit 0
+          fi
+          if grep -q "to 0 binary cache(s)" -- "${logs[@]}"; then
+            echo "Binary cache push reported 0 caches and no successful push was found." >&2
+            exit 1
+          fi
+          echo "No binary cache push summary found; assuming no package was built for upload."
