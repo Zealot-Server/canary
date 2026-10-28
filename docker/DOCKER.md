@@ -268,8 +268,9 @@ docker compose up -d
 ```
 
 The MyAAC container waits until the Canary schema exists, writes its own
-`config.local.php`, imports the MyAAC tables, and creates the admin account on
-first startup.
+`config.local.php` and imports the MyAAC tables on first startup. On a fresh
+Canary database, it also replaces the default `god/god` account with the
+configured MyAAC administrator credentials. Existing worlds are not modified.
 
 The generated MyAAC server path contains the runtime `config.lua` needed for
 database and status settings. It does not mount the full Canary datapack into
@@ -300,10 +301,12 @@ http://localhost:8088/login
 Docker volumes used by this quickstart:
 
 - `db-volume`: MariaDB data
-- `server-data`: Canary shared runtime data and backups
+- `server-data`: dados de runtime e backups compartilhados entre Canary e MyAAC
 
 MyAAC stores its persistent state in the shared Canary database. Its generated
 `config.local.php` is recreated from `.env` whenever the container starts.
+Ele lê `config.lua` e o datapack do servidor no volume `server-data`, que o
+entrypoint do Canary preenche antes de iniciar o game server.
 
 When an existing Canary schema is detected, the server entrypoint writes a
 database backup. With the default `CANARY_DB_NAME=canary`, the backup path is:
@@ -342,9 +345,9 @@ CI run whenever the Compose file, quickstart MyAAC image, seed SQL files, or the
 smoke workflow changes.
 
 The smoke test starts the stack from a clean database, checks that MyAAC answers
-on `http://localhost:8080`, verifies that MyAAC's `login.php` webservice is not
-present, and confirms that `opentibiabr/login-server` can return the seeded test
-account through `http://localhost:8088/login`.
+on `http://localhost:8080`, verifies that MyAAC's legacy `login.php` webservice
+returns HTTP 404, and confirms that `opentibiabr/login-server` can return the
+seeded test account through `http://localhost:8088/login`.
 
 ## Troubleshooting
 

@@ -254,19 +254,18 @@ echo ""
 echo "================================"
 echo ""
 
-if [ -d "/data/server/" ]; then
-	echo ""
-	echo "===== Copy Server Configuration And Data Pack To Shared Folder ====="
-	echo ""
+echo ""
+echo "===== Copy Server Configuration And Data Pack To Shared Folder ====="
+echo ""
 
-	cp config.lua /data/server/
-	cp -r data/ /data/server/
-	cp -r "$CANARY_DATA_PACK"/ /data/server/
+mkdir -p /data/server
+install -m 0644 config.lua /data/server/config.lua
+cp -r data/ /data/server/
+cp -r "$CANARY_DATA_PACK"/ /data/server/
 
-	echo ""
-	echo "================================"
-	echo ""
-fi
+echo ""
+echo "================================"
+echo ""
 
 echo ""
 echo "===== Start Server ====="

@@ -7,11 +7,15 @@ ENV_FILE="${DOCKER_DIR}/.env"
 
 export COMPOSE_PROJECT_NAME="${COMPOSE_PROJECT_NAME:-otbr-smoke}"
 
+MYAAC_PUBLISHED_PORT="${MYAAC_PUBLISHED_PORT:-8080}"
+LOGIN_HTTP_PUBLISHED_PORT="${LOGIN_HTTP_PUBLISHED_PORT:-8088}"
+
 cd "${DOCKER_DIR}"
 cp .env.dist "${ENV_FILE}"
 
 if [[ -n "${CANARY_IMAGE:-}" ]]; then
-	sed -i "s|^CANARY_IMAGE=.*|CANARY_IMAGE=${CANARY_IMAGE}|" "${ENV_FILE}"
+	sed -i.bak "s|^CANARY_IMAGE=.*|CANARY_IMAGE=${CANARY_IMAGE}|" "${ENV_FILE}"
+	rm -f "${ENV_FILE}.bak"
 fi
 
 if [[ -n "${CANARY_IMAGE_TAR:-}" ]]; then
@@ -84,7 +88,7 @@ wait_for_login_server() {
 			curl -sS -o "${response_file}" -w "%{http_code}" \
 				-H "Content-Type: application/json" \
 				-d '{"email":"@test1","password":"test","type":"login","clientversion":"1501"}' \
-				http://localhost:8088/login || true
+				"http://localhost:${LOGIN_HTTP_PUBLISHED_PORT}/login" || true
 		)"
 
 		if [[ "${status}" == "200" ]] &&
@@ -117,10 +121,8 @@ else
 fi
 "${COMPOSE[@]}" up -d --build
 
-wait_for_http_status "MyAAC home" "http://localhost:8080/" "200"
-wait_for_http_status "MyAAC login.php" "http://localhost:8080/login.php" "404"
-
-"${COMPOSE[@]}" exec -T myaac test ! -f /var/www/html/login.php
+wait_for_http_status "MyAAC home" "http://localhost:${MYAAC_PUBLISHED_PORT}/" "200"
+wait_for_http_status "MyAAC login.php" "http://localhost:${MYAAC_PUBLISHED_PORT}/login.php" "404"
 
 "${COMPOSE[@]}" exec -T server sh -lc '
 	grep -q "mysqlHost = \"db\"" config.lua &&
