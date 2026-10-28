@@ -87,11 +87,17 @@ if ($defaultAccount->fetchColumn() === 'god') {
     );
     $update->execute([$adminAccount, $adminEmail, $adminPassword]);
 
-    $player = $pdo->prepare('SELECT `name` FROM `players` WHERE `id` = 7');
-    $player->execute();
-    if ($player->fetchColumn() === 'GOD') {
-        $renamePlayer = $pdo->prepare('UPDATE `players` SET `name` = ?, `account_id` = 1, `group_id` = 6 WHERE `id` = 7');
-        $renamePlayer->execute([$adminPlayer]);
+    // The test seed can already provide the requested administrator player.
+    // Keep it intact instead of colliding with the pristine player at id 7.
+    $existingAdminPlayer = $pdo->prepare('SELECT `id` FROM `players` WHERE `name` = ? LIMIT 1');
+    $existingAdminPlayer->execute([$adminPlayer]);
+    if ($existingAdminPlayer->fetchColumn() === false) {
+        $player = $pdo->prepare('SELECT `name` FROM `players` WHERE `id` = 7');
+        $player->execute();
+        if ($player->fetchColumn() === 'GOD') {
+            $renamePlayer = $pdo->prepare('UPDATE `players` SET `name` = ?, `account_id` = 1, `group_id` = 6 WHERE `id` = 7');
+            $renamePlayer->execute([$adminPlayer]);
+        }
     }
 }
 
