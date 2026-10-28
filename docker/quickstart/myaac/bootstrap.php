@@ -71,6 +71,34 @@ if ($myaacTables === false || $myaacTables->fetchColumn() === false) {
     $pdo->exec($schema);
 }
 
+// The interactive MyAAC installer applies migration 22 after importing its
+// schema. The non-interactive quickstart must create the same legacy tables.
+$pdo->exec(
+    'CREATE TABLE IF NOT EXISTS `z_polls` (
+        `id` int(11) NOT NULL AUTO_INCREMENT,
+        `question` varchar(255) NOT NULL,
+        `description` varchar(255) NOT NULL,
+        `end` int(11) NOT NULL DEFAULT 0,
+        `start` int(11) NOT NULL DEFAULT 0,
+        `answers` int(11) NOT NULL DEFAULT 0,
+        `votes_all` int(11) NOT NULL DEFAULT 0,
+        PRIMARY KEY (`id`)
+    ) ENGINE=InnoDB DEFAULT CHARACTER SET=utf8'
+);
+$pdo->exec(
+    'CREATE TABLE IF NOT EXISTS `z_polls_answers` (
+        `poll_id` int(11) NOT NULL,
+        `answer_id` int(11) NOT NULL,
+        `answer` varchar(255) NOT NULL,
+        `votes` int(11) NOT NULL DEFAULT 0
+    ) ENGINE=InnoDB DEFAULT CHARACTER SET=utf8'
+);
+
+$voteColumn = $pdo->query("SHOW COLUMNS FROM `accounts` LIKE 'vote'");
+if ($voteColumn === false || $voteColumn->fetchColumn() === false) {
+    $pdo->exec('ALTER TABLE `accounts` ADD `vote` int(11) NOT NULL DEFAULT 0');
+}
+
 $adminAccount = requiredEnv('MYAAC_ADMIN_ACCOUNT');
 $adminEmail = requiredEnv('MYAAC_ADMIN_EMAIL');
 $adminPassword = requiredEnv('MYAAC_ADMIN_PASSWORD');

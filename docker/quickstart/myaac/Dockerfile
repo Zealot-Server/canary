@@ -11,4 +11,10 @@ RUN apt-get update \
 	&& a2enmod headers rewrite \
 	&& rm -rf /var/lib/apt/lists/*
 
+COPY quickstart/myaac/entrypoint.sh /usr/local/bin/myaac-quickstart
+COPY quickstart/myaac/disable-legacy-login.conf /etc/apache2/conf-available/disable-legacy-login.conf
+
+RUN chmod 0755 /usr/local/bin/myaac-quickstart \
+	&& a2enconf disable-legacy-login
+
 CMD ["apache2-foreground"]

@@ -345,9 +345,9 @@ CI run whenever the Compose file, quickstart MyAAC image, seed SQL files, or the
 smoke workflow changes.
 
 The smoke test starts the stack from a clean database, checks that MyAAC answers
-on `http://localhost:8080`, verifies that MyAAC's `login.php` webservice is not
-present, and confirms that `opentibiabr/login-server` can return the seeded test
-account through `http://localhost:8088/login`.
+on `http://localhost:8080`, verifies that MyAAC's legacy `login.php` webservice
+returns HTTP 404, and confirms that `opentibiabr/login-server` can return the
+seeded test account through `http://localhost:8088/login`.
 
 ## Troubleshooting
 
