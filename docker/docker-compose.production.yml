@@ -1,0 +1,24 @@
+# Production network override for the Docker quickstart stack.
+#
+# Use only together with docker-compose.yml. It keeps administrative and
+# service-to-service endpoints on loopback; publish the site and the login API
+# through an HTTPS reverse proxy after the domain is configured.
+services:
+  db:
+    ports: !override
+      - "127.0.0.1:3307:3306"
+
+  server:
+    ports: !override
+      - "127.0.0.1:${CANARY_LOGIN_PORT:-7171}:${CANARY_LOGIN_PORT:-7171}"
+      - "${CANARY_GAME_PORT:-7172}:${CANARY_GAME_PORT:-7172}"
+      - "127.0.0.1:${CANARY_STATUS_PORT:-7173}:${CANARY_STATUS_PORT:-7173}"
+
+  myaac:
+    ports: !override
+      - "127.0.0.1:${MYAAC_HTTP_PORT:-8080}:80"
+
+  login-server:
+    ports: !override
+      - "127.0.0.1:${LOGIN_HTTP_PORT:-8088}:${LOGIN_HTTP_PORT:-8088}"
+      - "127.0.0.1:${LOGIN_GRPC_PORT:-9090}:${LOGIN_GRPC_PORT:-9090}"
