@@ -268,8 +268,9 @@ docker compose up -d
 ```
 
 The MyAAC container waits until the Canary schema exists, writes its own
-`config.local.php`, imports the MyAAC tables, and creates the admin account on
-first startup.
+`config.local.php` and imports the MyAAC tables on first startup. On a fresh
+Canary database, it also replaces the default `god/god` account with the
+configured MyAAC administrator credentials. Existing worlds are not modified.
 
 The generated MyAAC server path contains the runtime `config.lua` needed for
 database and status settings. It does not mount the full Canary datapack into
