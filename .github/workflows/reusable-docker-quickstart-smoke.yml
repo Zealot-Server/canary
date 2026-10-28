@@ -16,6 +16,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
 
+      - name: Checkout quickstart dependencies
+        run: |
+          git clone --depth 1 https://github.com/zealot-server/myaac-main.git ../myaac-main
+          git clone --depth 1 https://github.com/zealot-server/login-server.git ../login-server
+
       - name: Show Docker versions
         run: |
           docker version
