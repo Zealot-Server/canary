@@ -7,9 +7,15 @@ o VPS, sempre combine-o com `docker-compose.production.yml`:
 docker compose -f docker-compose.yml -f docker-compose.production.yml up -d --build
 ```
 
-O override expõe somente a porta de jogo (`7172`) em todas as interfaces. Banco,
-login protocol, status, MyAAC, login HTTP e gRPC ficam acessíveis somente por
-`127.0.0.1`. Não abra essas portas no firewall.
+O override expõe a porta de jogo (`7172`) e a porta de status (`7173`) em todas
+as interfaces. A porta de status é necessária para listagens públicas, como o
+OTServList, consultarem nome, jogadores e estado do Canary. Banco, login
+protocol, MyAAC, login HTTP e gRPC ficam acessíveis somente por `127.0.0.1`.
+Não abra essas portas no firewall.
+
+Ao usar uma listagem de servidores, cadastre o host público com a porta de
+status `7173` (não a porta de jogo `7172`) e libere apenas `7173/tcp` no
+firewall do VPS. A porta de status não fornece acesso administrativo.
 
 Antes da primeira inicialização, crie `docker/.env` a partir de `.env.dist` e
 substitua todas as senhas padrão. Para produção, também defina:

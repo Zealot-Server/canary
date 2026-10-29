@@ -12,7 +12,9 @@ services:
     ports: !override
       - "127.0.0.1:${CANARY_LOGIN_PORT:-7171}:${CANARY_LOGIN_PORT:-7171}"
       - "${CANARY_GAME_PORT:-7172}:${CANARY_GAME_PORT:-7172}"
-      - "127.0.0.1:${CANARY_STATUS_PORT:-7173}:${CANARY_STATUS_PORT:-7173}"
+      # Server listings query the Canary status protocol directly. It exposes
+      # public server metadata only; database, web and login APIs stay private.
+      - "${CANARY_STATUS_PORT:-7173}:${CANARY_STATUS_PORT:-7173}"
 
   myaac:
     ports: !override
