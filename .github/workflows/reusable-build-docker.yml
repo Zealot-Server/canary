@@ -62,6 +62,7 @@ jobs:
             github_token=${{ github.token }}
           tags: |
             ghcr.io/${{ steps.repo_lower.outputs.value }}:latest
+            ghcr.io/${{ steps.repo_lower.outputs.value }}:${{ github.sha }}
             ghcr.io/${{ steps.repo_lower.outputs.value }}:${{ steps.gitversion.outputs.semVer }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
