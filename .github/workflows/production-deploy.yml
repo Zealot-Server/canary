@@ -49,6 +49,7 @@ jobs:
             rollback() {
               sudo git -C "$APP_DIR" reset --hard "$PREVIOUS_SHA"
               sudo env CANARY_IMAGE="$PREVIOUS_IMAGE" docker compose -f "$STACK_DIR/docker-compose.yml" -f "$STACK_DIR/docker-compose.production.yml" up -d --no-deps --force-recreate server
+              sudo docker compose -f "$STACK_DIR/docker-compose.yml" -f "$STACK_DIR/docker-compose.production.yml" up -d --no-deps --force-recreate caddy
             }
 
             sudo git -C "$APP_DIR" fetch origin main
@@ -60,6 +61,14 @@ jobs:
             fi
 
             if ! sudo env CANARY_IMAGE="$IMAGE" docker compose -f "$STACK_DIR/docker-compose.yml" -f "$STACK_DIR/docker-compose.production.yml" up -d --no-deps --force-recreate server; then
+              rollback
+              exit 1
+            fi
+
+            # The public gateway mounts its Caddyfile from this repository.
+            # Recreate it so performance and cache-header changes are live with
+            # the validated Canary commit.
+            if ! sudo docker compose -f "$STACK_DIR/docker-compose.yml" -f "$STACK_DIR/docker-compose.production.yml" up -d --no-deps --force-recreate caddy; then
               rollback
               exit 1
             fi

@@ -4,6 +4,12 @@
 
 zealot.website, www.zealot.website {
 	encode zstd gzip
+
+	# Dynamic PHP pages stay uncached. Versioned CSS and immutable game artwork
+	# can be reused by the browser instead of being revalidated on every page.
+	@static_assets path /templates/* /images/* /tools/fonts/* /admin/bootstrap/*
+	header @static_assets Cache-Control "public, max-age=604800"
+
 	reverse_proxy myaac:80
 }
 
