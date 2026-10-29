@@ -23,6 +23,11 @@ substitua todas as senhas padrão. Para produção, também defina:
 ```env
 CANARY_SERVER_NAME=Zealot
 CANARY_SERVER_IP=<IP-ou-host-publico>
+CANARY_SERVER_LOCATION=Europe
+CANARY_SERVER_URL=https://zealot.website/
+CANARY_OWNER_NAME=Zealot
+CANARY_OWNER_EMAIL=<e-mail-de-contato>
+CANARY_MAX_PLAYERS=2000
 CANARY_TEST_ACCOUNTS=false
 CANARY_IMAGE=ghcr.io/zealot-server/canary:latest
 MYAAC_SITE_URL=https://<dominio>
