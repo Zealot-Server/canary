@@ -48,24 +48,24 @@ jobs:
 
             rollback() {
               sudo git -C "$APP_DIR" reset --hard "$PREVIOUS_SHA"
-              CANARY_IMAGE="$PREVIOUS_IMAGE" sudo docker compose -f "$STACK_DIR/docker-compose.yml" -f "$STACK_DIR/docker-compose.production.yml" up -d --no-deps --force-recreate server
+              sudo env CANARY_IMAGE="$PREVIOUS_IMAGE" docker compose -f "$STACK_DIR/docker-compose.yml" -f "$STACK_DIR/docker-compose.production.yml" up -d --no-deps --force-recreate server
             }
 
             sudo git -C "$APP_DIR" fetch origin main
             sudo git -C "$APP_DIR" reset --hard "$TARGET_SHA"
 
-            if ! CANARY_IMAGE="$IMAGE" sudo docker compose -f "$STACK_DIR/docker-compose.yml" -f "$STACK_DIR/docker-compose.production.yml" pull server; then
+            if ! sudo env CANARY_IMAGE="$IMAGE" docker compose -f "$STACK_DIR/docker-compose.yml" -f "$STACK_DIR/docker-compose.production.yml" pull server; then
               rollback
               exit 1
             fi
 
-            if ! CANARY_IMAGE="$IMAGE" sudo docker compose -f "$STACK_DIR/docker-compose.yml" -f "$STACK_DIR/docker-compose.production.yml" up -d --no-deps --force-recreate server; then
+            if ! sudo env CANARY_IMAGE="$IMAGE" docker compose -f "$STACK_DIR/docker-compose.yml" -f "$STACK_DIR/docker-compose.production.yml" up -d --no-deps --force-recreate server; then
               rollback
               exit 1
             fi
 
             for attempt in {1..30}; do
-              if [ "$(sudo docker inspect --format '{{.State.Running}}' otbr-server-1)" = true; then
+              if [ "$(sudo docker inspect --format '{{.State.Running}}' otbr-server-1)" = true ]; then
                 echo "Deployed $TARGET_SHA"
                 exit 0
               fi
