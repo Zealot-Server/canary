@@ -127,18 +127,43 @@ echo ""
 echo "===== OTBR Global Data Pack ====="
 echo ""
 
-if [ "$CANARY_DATA_PACK" = "data-otservbr-global" ] && [ ! -f data-otservbr-global/world/otservbr.otbm ]; then
-	echo "Downloading OTBR map..."
-	tmp_map="data-otservbr-global/world/otservbr.otbm.tmp"
-	rm -f "$tmp_map"
-	if ! curl --fail --show-error --location \
-		--connect-timeout 5 --max-time 180 \
-		"$CANARY_MAP_URL" -o "$tmp_map"; then
-		rm -f "$tmp_map"
-		exit 1
+if [ "$CANARY_DATA_PACK" = "data-otservbr-global" ]; then
+	map_path="data-otservbr-global/world/otservbr.otbm"
+	tmp_map="${map_path}.tmp"
+	map_needs_download=false
+
+	if [ ! -f "$map_path" ]; then
+		map_needs_download=true
+	elif [ -n "${CANARY_MAP_SHA256:-}" ]; then
+		current_map_sha256="$(sha256sum "$map_path" | awk '{print $1}')"
+		if [ "$current_map_sha256" != "$CANARY_MAP_SHA256" ]; then
+			echo "Installed map checksum differs from the configured Zealot map; replacing it."
+			map_needs_download=true
+		fi
 	fi
-	mv "$tmp_map" data-otservbr-global/world/otservbr.otbm
-	echo "Done"
+
+	if [ "$map_needs_download" = true ]; then
+		echo "Downloading configured map..."
+		rm -f "$tmp_map"
+		if ! curl --fail --show-error --location \
+			--connect-timeout 5 --max-time 180 \
+			"$CANARY_MAP_URL" -o "$tmp_map"; then
+			rm -f "$tmp_map"
+			exit 1
+		fi
+		if [ -n "${CANARY_MAP_SHA256:-}" ]; then
+			downloaded_map_sha256="$(sha256sum "$tmp_map" | awk '{print $1}')"
+			if [ "$downloaded_map_sha256" != "$CANARY_MAP_SHA256" ]; then
+				echo "Downloaded map checksum does not match CANARY_MAP_SHA256."
+				rm -f "$tmp_map"
+				exit 1
+			fi
+		fi
+		mv "$tmp_map" "$map_path"
+		echo "Map ready"
+	else
+		echo "Map download skipped"
+	fi
 else
 	echo "Map download skipped"
 fi
