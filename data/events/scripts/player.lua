@@ -573,12 +573,10 @@ function Player:onGainExperience(target, exp, rawExp)
 		end
 	end
 
-	-- VIP Bonus Experience
-	if configManager.getBoolean(configKeys.VIP_SYSTEM_ENABLED) then
-		local vipBonusExp = configManager.getNumber(configKeys.VIP_BONUS_EXP)
-		if vipBonusExp > 0 and self:isVip() then
-			exp = exp * (1 + math.min(vipBonusExp, 100) / 100)
-		end
+	-- Premium Bonus Experience
+	local vipBonusExp = configManager.getNumber(configKeys.VIP_BONUS_EXP)
+	if vipBonusExp > 0 and self:isPremium() then
+		exp = exp * (1 + math.min(vipBonusExp, 100) / 100)
 	end
 
 	-- Soul War Experience by Taint

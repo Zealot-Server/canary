@@ -350,9 +350,9 @@ function Player.getFinalBonusStamina(self)
 	local staminaBonus = 1
 	if configManager.getBoolean(configKeys.STAMINA_SYSTEM) then
 		local staminaMinutes = self:getStamina()
-		if staminaMinutes > 2340 and self:isPremium() then
+		if staminaMinutes >= 2340 then
 			staminaBonus = 1.5
-		elseif staminaMinutes <= 840 then
+		elseif staminaMinutes < 840 then
 			staminaBonus = 0.5
 		end
 	end

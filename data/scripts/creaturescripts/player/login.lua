@@ -86,13 +86,11 @@ function playerLoginGlobal.onLogin(player)
 	-- Send Client Exp Display
 	if configManager.getBoolean(configKeys.XP_DISPLAY_MODE) then
 		local baseRate = player:getFinalBaseRateExperience() * 100
-		if configManager.getBoolean(configKeys.VIP_SYSTEM_ENABLED) then
-			local vipBonusExp = configManager.getNumber(configKeys.VIP_BONUS_EXP)
-			if vipBonusExp > 0 and player:isVip() then
-				vipBonusExp = (vipBonusExp > 100 and 100) or vipBonusExp
-				baseRate = baseRate * (1 + (vipBonusExp / 100))
-				player:sendTextMessage(MESSAGE_BOOSTED_CREATURE, "Normal base xp is: " .. baseRate .. "%, because you are VIP, bonus of " .. vipBonusExp .. "%")
-			end
+		local vipBonusExp = configManager.getNumber(configKeys.VIP_BONUS_EXP)
+		if vipBonusExp > 0 and player:isPremium() then
+			vipBonusExp = (vipBonusExp > 100 and 100) or vipBonusExp
+			baseRate = baseRate * (1 + (vipBonusExp / 100))
+			player:sendTextMessage(MESSAGE_BOOSTED_CREATURE, "Normal base xp is: " .. baseRate .. "%, because you are Premium, bonus of " .. vipBonusExp .. "%")
 		end
 
 		player:setBaseXpGain(baseRate)
