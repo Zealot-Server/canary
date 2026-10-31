@@ -1,4 +1,4 @@
-local commands = TalkAction("!commands")
+local commands = TalkAction("/commands", "!commands")
 
 function commands.onSay(player, words, param)
 	local allTalkActions = Game.getTalkActions()
@@ -27,6 +27,6 @@ function commands.onSay(player, words, param)
 	return true
 end
 
-commands:setDescription("[Usage]: !commands to see each command with its description")
-commands:groupType("normal")
+commands:setDescription("[Usage]: /commands to see each command with its description")
+commands:groupType("gamemaster")
 commands:register()
