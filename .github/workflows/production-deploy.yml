@@ -45,15 +45,23 @@ jobs:
             PREVIOUS_SHA="$(sudo git -C "$APP_DIR" rev-parse HEAD)"
             PREVIOUS_IMAGE="$(sudo docker inspect --format '{{.Image}}' otbr-server-1)"
             IMAGE="ghcr.io/zealot-server/canary:$TARGET_SHA"
+            MYAAC_CHANGED=false
 
             rollback() {
               sudo git -C "$APP_DIR" reset --hard "$PREVIOUS_SHA"
               sudo env CANARY_IMAGE="$PREVIOUS_IMAGE" docker compose -f "$STACK_DIR/docker-compose.yml" -f "$STACK_DIR/docker-compose.production.yml" up -d --no-deps --force-recreate server
+              if [ "$MYAAC_CHANGED" = true ]; then
+                sudo docker compose -f "$STACK_DIR/docker-compose.yml" -f "$STACK_DIR/docker-compose.production.yml" up -d --build --no-deps --force-recreate myaac
+              fi
               sudo docker compose -f "$STACK_DIR/docker-compose.yml" -f "$STACK_DIR/docker-compose.production.yml" up -d --no-deps --force-recreate caddy
             }
 
             sudo git -C "$APP_DIR" fetch origin main
             sudo git -C "$APP_DIR" reset --hard "$TARGET_SHA"
+
+            if ! sudo git -C "$APP_DIR" diff --quiet "$PREVIOUS_SHA" "$TARGET_SHA" -- docker/docker-compose.yml docker/quickstart/myaac; then
+              MYAAC_CHANGED=true
+            fi
 
             if ! sudo env CANARY_IMAGE="$IMAGE" docker compose -f "$STACK_DIR/docker-compose.yml" -f "$STACK_DIR/docker-compose.production.yml" pull server; then
               rollback
@@ -61,6 +69,11 @@ jobs:
             fi
 
             if ! sudo env CANARY_IMAGE="$IMAGE" docker compose -f "$STACK_DIR/docker-compose.yml" -f "$STACK_DIR/docker-compose.production.yml" up -d --no-deps --force-recreate server; then
+              rollback
+              exit 1
+            fi
+
+            if [ "$MYAAC_CHANGED" = true ] && ! sudo docker compose -f "$STACK_DIR/docker-compose.yml" -f "$STACK_DIR/docker-compose.production.yml" up -d --build --no-deps --force-recreate myaac; then
               rollback
               exit 1
             fi
