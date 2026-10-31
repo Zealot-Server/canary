@@ -539,8 +539,8 @@ sortLootByChance = false
 -- NOTE: rateExp, rateSkill and rateMagic is used when 'rateUseStages = false' - or a fallback only
 -- To configure rates see file data/stages.lua
 -- lowLevelBonusExp works up to level 50
-rateUseStages = false
-lowLevelBonusExp = 50
+rateUseStages = true
+lowLevelBonusExp = 0
 rateExp = 1
 rateSkill = 1
 rateLoot = 1
@@ -625,7 +625,7 @@ discordWebhookDelayMs = 1000
 -- NOTE: GainCoin function, please configure script: data-otservbr-global/scripts/globalevents/vip/online_coins.lua
 -- NOTE: GainToken function, please configure script: data-otservbr-global/scripts/globalevents/vip/online_tokens.lua
 vipSystemEnabled = false
-vipBonusExp = 0
+vipBonusExp = 10
 vipBonusLoot = 0
 vipBonusSkill = 0
 vipAutoLootVipOnly = false

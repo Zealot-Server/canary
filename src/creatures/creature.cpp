@@ -698,10 +698,14 @@ bool Creature::dropCorpse(const std::shared_ptr<Creature> &lastHitCreature, cons
 		const auto &corpse = getCorpse(lastHitCreature, mostDamageCreature);
 		if (tile && corpse) {
 			g_game().internalAddItem(tile, corpse, INDEX_WHEREEVER, FLAG_NOLIMIT);
-			dropLoot(corpse->getContainer(), lastHitCreature);
+			const auto &player = mostDamageCreature ? mostDamageCreature->getPlayer() : nullptr;
+			// Characters with less than 8 hours of stamina may still hunt, but
+			// monster corpses do not receive loot.
+			if (!player || player->getStaminaMinutes() >= 480) {
+				dropLoot(corpse->getContainer(), lastHitCreature);
+			}
 			corpse->startDecaying();
 			const bool disallowedCorpses = corpse->isRewardCorpse() || (corpse->getID() == ITEM_MALE_CORPSE || corpse->getID() == ITEM_FEMALE_CORPSE);
-			const auto &player = mostDamageCreature ? mostDamageCreature->getPlayer() : nullptr;
 			const auto &corpseContainer = corpse->getContainer();
 			if (corpseContainer && player && !disallowedCorpses) {
 				const auto &monster = getMonster();
