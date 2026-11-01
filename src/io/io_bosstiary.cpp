@@ -29,27 +29,21 @@ void IOBosstiary::loadBoostedBoss() {
 	}
 
 	const auto &bossMap = getBosstiaryMap();
-	if (bossMap.size() <= 1) {
-		g_logger().error("[{}] It is not possible to create a boosted boss with only one registered boss. (CODE 02)", __FUNCTION__);
-		return;
-	}
 
-	auto timeNow = getTimeNow();
-	auto time = localtime(&timeNow);
-	auto today = time->tm_mday;
+	const auto timeNow = getTimeNow();
+	const tm* time = localtime(&timeNow);
+	const auto today = fmt::format("{:04d}{:02d}{:02d}", time->tm_year + 1900, time->tm_mon + 1, time->tm_mday);
 
-	if (!result) {
-		g_logger().warn("[{}] No boosted boss found in g_database(). A new one will be selected.", __FUNCTION__);
-	} else {
-		auto date = result->getNumber<uint16_t>("date");
-		if (date == today) {
-			std::string bossName = result->getString("boostname");
-			uint16_t bossId = result->getNumber<uint16_t>("raceid");
+	const auto date = result->getString("date");
+	if (date == today) {
+		const auto bossName = result->getString("boostname");
+		const auto bossId = result->getNumber<uint16_t>("raceid");
+		if (bossId != getBoostedBossId() || bossName != getBoostedBossName()) {
 			setBossBoostedName(bossName);
 			setBossBoostedId(bossId);
 			g_logger().info("Boosted boss: {}", bossName);
-			return;
 		}
+		return;
 	}
 
 	// Filter only archfoe bosses
@@ -60,6 +54,10 @@ void IOBosstiary::loadBoostedBoss() {
 			continue;
 		}
 		bossInfo.emplace_back(infoBossRaceId, infoBossName);
+	}
+	if (bossInfo.size() > 1) {
+		const auto previousBossId = result->getNumber<uint16_t>("raceid");
+		std::erase_if(bossInfo, [previousBossId](const auto &boss) { return boss.first == previousBossId; });
 	}
 
 	// Check if not have archfoe registered boss
@@ -73,8 +71,8 @@ void IOBosstiary::loadBoostedBoss() {
 	uint16_t bossId = randomBossId;
 
 	query = fmt::format(
-		"UPDATE `boosted_boss` SET `date` = '{}', `boostname` = {}, `raceid` = '{}', ",
-		today, database.escapeString(bossName), bossId
+		"UPDATE `boosted_boss` SET `date` = '{}', `boostname` = {}, ",
+		today, database.escapeString(bossName)
 	);
 
 	if (const auto bossType = getMonsterTypeByBossRaceId(bossId); bossType) {

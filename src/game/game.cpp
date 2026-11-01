@@ -475,12 +475,16 @@ void Game::loadBoostedCreature() {
 		return;
 	}
 
-	const auto date = result->getNumber<uint16_t>("date");
+	const auto date = result->getString("date");
 	const auto now = getTimeNow();
-	tm* ltm = localtime(&now);
+	const tm* ltm = localtime(&now);
+	const auto today = fmt::format("{:04d}{:02d}{:02d}", ltm->tm_year + 1900, ltm->tm_mon + 1, ltm->tm_mday);
 
-	if (date == ltm->tm_mday) {
-		setBoostedName(result->getString("boostname"));
+	if (date == today) {
+		const auto boostedName = result->getString("boostname");
+		if (boostedName != getBoostedMonsterName()) {
+			setBoostedName(boostedName);
+		}
 		return;
 	}
 
@@ -492,26 +496,24 @@ void Game::loadBoostedCreature() {
 		std::string name;
 	};
 
-	MonsterRace selectedMonster;
-	if (!monsterlist.empty()) {
-		std::vector<MonsterRace> m_monsters;
-		for (const auto &[raceId, _name] : BestiaryList) {
-			if (raceId != oldRace) {
-				m_monsters.emplace_back(raceId, _name);
-			}
-		}
-
-		if (!m_monsters.empty()) {
-			selectedMonster = m_monsters[normal_random(0, m_monsters.size() - 1)];
+	std::vector<MonsterRace> eligibleMonsters;
+	for (const auto &[raceId, name] : monsterlist) {
+		if (raceId != 0 && g_monsters().getMonsterType(name)) {
+			eligibleMonsters.emplace_back(raceId, name);
 		}
 	}
 
-	if (selectedMonster.raceId == 0) {
+	if (eligibleMonsters.size() > 1) {
+		std::erase_if(eligibleMonsters, [oldRace](const MonsterRace &monster) { return monster.raceId == oldRace; });
+	}
+
+	if (eligibleMonsters.empty()) {
 		g_logger().warn("[Game::loadBoostedCreature] - "
-		                "It was not possible to generate a new boosted creature->");
+		                "It was not possible to generate a new boosted creature: no valid monsters found.");
 		return;
 	}
 
+	const auto &selectedMonster = eligibleMonsters[uniform_random(0, static_cast<int32_t>(eligibleMonsters.size() - 1))];
 	const auto monsterType = g_monsters().getMonsterType(selectedMonster.name);
 	if (!monsterType) {
 		g_logger().warn("[Game::loadBoostedCreature] - "
@@ -520,10 +522,8 @@ void Game::loadBoostedCreature() {
 		return;
 	}
 
-	setBoostedName(selectedMonster.name);
-
 	auto query = std::string("UPDATE `boosted_creature` SET ")
-		+ "`date` = '" + std::to_string(ltm->tm_mday) + "',"
+		+ "`date` = '" + today + "',"
 		+ "`boostname` = " + db.escapeString(selectedMonster.name) + ","
 		+ "`looktype` = " + std::to_string(monsterType->info.outfit.lookType) + ","
 		+ "`lookfeet` = " + std::to_string(monsterType->info.outfit.lookFeet) + ","
@@ -537,7 +537,9 @@ void Game::loadBoostedCreature() {
 	if (!db.executeQuery(query)) {
 		g_logger().warn("[Game::loadBoostedCreature] - "
 		                "Failed to detect boosted creature database. (CODE 02)");
+		return;
 	}
+	setBoostedName(selectedMonster.name);
 }
 
 void Game::start(ServiceManager* manager) {
@@ -571,6 +573,14 @@ void Game::start(ServiceManager* manager) {
 	);
 	[[maybe_unused]] auto eventId6 = g_dispatcher().cycleEvent(
 		EVENT_LUA_GARBAGE_COLLECTION, [this] { g_luaEnvironment().collectGarbage(); }, "Calling GC"
+	);
+	[[maybe_unused]] auto eventId7 = g_dispatcher().cycleEvent(
+		EVENT_DAILY_BOOST_CHECK_INTERVAL,
+		[this] {
+			loadBoostedCreature();
+			g_ioBosstiary().loadBoostedBoss();
+		},
+		"Game::refreshDailyBoosts"
 	);
 	auto marketItemsPriceIntervalMinutes = g_configManager().getNumber(MARKET_REFRESH_PRICES);
 	if (marketItemsPriceIntervalMinutes > 0) {
