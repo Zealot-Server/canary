@@ -8455,14 +8455,24 @@ void Player::onThink(uint32_t interval) {
 	triggerMomentum();
 	const auto &playerTile = getTile();
 	const bool vipStaysOnline = isVip() && g_configManager().getBoolean(VIP_STAY_ONLINE);
+	const int32_t previousIdleTime = idleTime;
 	idleTime += interval;
 	if (playerTile && !playerTile->hasFlag(TILESTATE_NOLOGOUT) && !isAccessPlayer() && !isExerciseTraining() && !vipStaysOnline) {
 		const int32_t kickAfterMinutes = g_configManager().getNumber(KICK_AFTER_MINUTES);
-		if (idleTime > (kickAfterMinutes * 60000) + 60000) {
-			removePlayer(true);
-		} else if (client && idleTime == 60000 * kickAfterMinutes) {
+		const int32_t kickAfterMs = kickAfterMinutes * 60000;
+		const int32_t warningAtMs = kickAfterMs - 60000;
+		if (idleTime >= kickAfterMs) {
+			g_logger().info("Player {} has been disconnected after {} minutes of inactivity.", getName(), kickAfterMinutes);
+			setAttackedCreature(nullptr);
+			g_creatureEvents().playerLogout(static_self_cast<Player>());
+			if (client) {
+				client->logoutForInactivity();
+			} else {
+				g_game().removeCreature(static_self_cast<Player>(), true);
+			}
+		} else if (client && previousIdleTime < warningAtMs && idleTime >= warningAtMs) {
 			std::ostringstream ss;
-			ss << "There was no variation in your behaviour for " << kickAfterMinutes << " minutes. You will be disconnected in one minute if there is no change in your actions until then.";
+			ss << "You have been inactive for " << kickAfterMinutes - 1 << " minutes. You will be disconnected in one minute unless you perform an action.";
 			client->sendTextMessage(TextMessage(MESSAGE_ADMINISTRATOR, ss.str()));
 		}
 	}

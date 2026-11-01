@@ -170,6 +170,10 @@ ctest --preset macos-debug
 - `myaac-main` deve usar o mesmo banco para criar contas, personagens e painel web.
 - `otclient` deve apontar para o IP/porta do login server ou para a porta de login configurada no servidor.
 
+### Desconexao por inatividade
+
+`kickIdlePlayerAfterMinutes` em `config.lua.dist` define o limite de inatividade (10 minutos no Zealot). O Canary avisa um minuto antes e envia o motivo de fim de sessao `SESSION_END_IDLE = 4` ao OTClient ao desconectar. Perda de ping e timeout de rede seguem caminhos separados; nao devem ser apresentados como inatividade.
+
 ## Solucao de Problemas
 
 | Problema | Verificacao |
