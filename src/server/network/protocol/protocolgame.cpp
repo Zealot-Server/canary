@@ -811,6 +811,15 @@ void ProtocolGame::logout(bool displayEffect, bool forced) {
 	g_game().removeCreature(player, true);
 }
 
+void ProtocolGame::logoutForInactivity() {
+	if (!player) {
+		return;
+	}
+
+	sendSessionEndInformation(SESSION_END_IDLE);
+	g_game().removeCreature(player, true);
+}
+
 void ProtocolGame::onRecvFirstMessage(NetworkMessage &msg) {
 	if (g_game().getGameState() == GAME_STATE_SHUTDOWN) {
 		disconnect();

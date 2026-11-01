@@ -53,6 +53,7 @@ enum SessionEndInformations : uint8_t {
 	SESSION_END_UNK2,
 	SESSION_END_FORCECLOSE,
 	SESSION_END_UNK3,
+	SESSION_END_IDLE = 4, // Zealot client shows the inactivity notice for this reason.
 };
 
 enum Resource_t : uint8_t {
