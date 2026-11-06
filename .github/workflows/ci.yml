@@ -93,6 +93,9 @@ jobs:
               - "data-otservbr-global/**"
             docker:
               - "docker/**"
+              - "data/**"
+              - "data-canary/**"
+              - "data-otservbr-global/**"
               - "src/**"
               - "cmake/**"
               - "vcpkg.json"
