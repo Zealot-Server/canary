@@ -12,8 +12,8 @@ services:
     environment:
       # Production always runs the map released and checksumed by Zealot. Local
       # development keeps the editable map from docker-compose.yml unchanged.
-      CANARY_MAP_URL: "${ZEALOT_MAP_URL:-https://github.com/Zealot-Server/canary/releases/download/zealot-map-2026-10-30/otservbr.otbm}"
-      CANARY_MAP_SHA256: "${ZEALOT_MAP_SHA256:-928ec4c115b641953d99306abbd674fc06cb4b9b20606eecb40d7cd289d6e973}"
+      CANARY_MAP_URL: "${ZEALOT_MAP_URL:-https://github.com/Zealot-Server/canary/releases/download/zealot-map-2026-11-06/otservbr.otbm}"
+      CANARY_MAP_SHA256: "${ZEALOT_MAP_SHA256:-ff4539e3ae4820898f3245b4496aba0e99b8a675cd5f4931bcb2a2daa5515745}"
     ports: !override
       - "127.0.0.1:${CANARY_LOGIN_PORT:-7171}:${CANARY_LOGIN_PORT:-7171}"
       - "${CANARY_GAME_PORT:-7172}:${CANARY_GAME_PORT:-7172}"
