@@ -31,7 +31,7 @@ monster.health = 100000000
 monster.maxHealth = monster.health
 monster.race = "blood"
 monster.corpse = 18090
-monster.speed = 120
+monster.speed = 0
 monster.manaCost = 60000
 
 monster.changeTarget = {
@@ -103,7 +103,6 @@ monster.defenses = {
 	armor = 25,
 	mitigation = 1.37,
 	{ name = "combat", interval = 2000, chance = 15, type = COMBAT_HEALING, minDamage = 10000, maxDamage = 50000, effect = CONST_ME_MAGIC_BLUE, target = false },
-	{ name = "speed", interval = 2000, chance = 15, speedChange = 300, effect = CONST_ME_MAGIC_RED, target = false, duration = 5000 },
 }
 
 monster.elements = {
