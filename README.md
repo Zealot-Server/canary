@@ -172,7 +172,7 @@ ctest --preset macos-debug
 
 ### Desconexao por inatividade
 
-`kickIdlePlayerAfterMinutes` em `config.lua.dist` define o limite de inatividade (10 minutos no Zealot). O Canary avisa um minuto antes e envia o motivo de fim de sessao `SESSION_END_IDLE = 4` ao OTClient ao desconectar. Perda de ping e timeout de rede seguem caminhos separados; nao devem ser apresentados como inatividade.
+`kickIdlePlayerAfterMinutes` em `config.lua.dist` define o limite de inatividade. No Zealot, `0` desativa a desconexao por inatividade para permitir treino AFK. Com um valor positivo, o Canary avisa um minuto antes e envia o motivo de fim de sessao `SESSION_END_IDLE = 4` ao OTClient ao desconectar. Perda de ping e timeout de rede seguem caminhos separados; nao devem ser apresentados como inatividade.
 
 ## Solucao de Problemas
 
