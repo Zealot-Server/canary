@@ -8,10 +8,9 @@ local changeGold = Action()
 
 function changeGold.onUse(player, item, fromPosition, target, toPosition, isHotkey)
 	local coin = config[item:getId()]
-	if coin.changeTo and item.type == 100 then
-		item:remove()
-		player:addItem(coin.changeTo, 1)
-		return true
+	if coin.changeTo and item:getCount() == 100 then
+		-- Keep the converted coin in the same slot, even when the inventory is full.
+		return item:transform(coin.changeTo, 1)
 	elseif coin.changeBack then
 		item:remove(1)
 		player:addItem(coin.changeBack, 100)
